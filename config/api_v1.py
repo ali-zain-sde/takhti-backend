@@ -1,6 +1,5 @@
-from typing import TYPE_CHECKING
+from django.urls import include, path
 
-if TYPE_CHECKING:
-    from django.urls import URLPattern, URLResolver
-
-urlpatterns: list[URLPattern | URLResolver] = []
+urlpatterns = [
+    path("", include("apps.core.api.urls")),
+]
