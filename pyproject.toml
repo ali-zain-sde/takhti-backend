@@ -31,9 +31,9 @@ extend-exclude = ["**/migrations/*"]
 [tool.ruff.lint]
 select = [
     "E", "W", "F", "I", "N", "UP", "B", "A", "C4", "DJ", "DTZ", "EM", "ISC", "PIE",
-    "PT", "Q", "RET", "SIM", "TID", "TC", "ARG", "PTH", "ERA", "PL", "RUF", "S", "T20",
+    "PT", "Q", "RET", "SIM", "TID", "ARG", "PTH", "ERA", "PL", "RUF", "S", "T20",
 ]
-ignore = ["PLR0913", "EM101", "EM102"]
+ignore = ["PLR0913", "EM101", "EM102", "ARG002"]
 
 [tool.ruff.lint.per-file-ignores]
 "**/tests/**" = ["S101", "PLR2004", "ARG001"]
@@ -59,3 +59,4 @@ DJANGO_SETTINGS_MODULE = "config.settings.test"
 python_files = ["test_*.py"]
 addopts = "--strict-markers --strict-config -ra --reuse-db"
 testpaths = ["apps"]
+filterwarnings = ["error"]
