@@ -38,6 +38,7 @@ ignore = ["PLR0913", "EM101", "EM102", "ARG002"]
 
 [tool.ruff.lint.per-file-ignores]
 "**/tests/**" = ["S101", "PLR2004", "ARG001"]
+"**/admin.py" = ["RUF012"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["apps", "config"]
@@ -49,8 +50,16 @@ plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
 exclude = ["\\.venv/", "migrations/"]
 
 [[tool.mypy.overrides]]
-module = ["environ.*", "factory.*"]
+module = ["environ.*"]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["factory", "factory.*"]
+implicit_reexport = true
+
+[[tool.mypy.overrides]]
+module = ["apps.*.tests.*"]
+disallow_untyped_calls = false
 
 [tool.django-stubs]
 django_settings_module = "config.settings.test"
