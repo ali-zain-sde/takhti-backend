@@ -3,7 +3,14 @@ from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.utils.translation import gettext_lazy as _
 
 from apps.accounts.forms import UserChangeForm, UserCreationForm
-from apps.accounts.models import User
+from apps.accounts.models import Membership, User
+
+
+class MembershipInline(admin.TabularInline[Membership, User]):
+    model = Membership
+    fields = ("organisation", "campus", "role", "is_active")
+    autocomplete_fields = ("organisation", "campus")
+    extra = 0
 
 
 @admin.register(User)
@@ -16,6 +23,7 @@ class UserAdmin(DjangoUserAdmin[User]):
     ordering = ("full_name",)
     readonly_fields = ("last_login", "created_at", "updated_at")
     filter_horizontal = ("groups", "user_permissions")
+    inlines = (MembershipInline,)
     fieldsets = (
         (None, {"fields": ("phone", "password")}),
         (_("Profile"), {"fields": ("full_name", "email")}),
