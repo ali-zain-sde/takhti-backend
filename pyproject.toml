@@ -37,7 +37,7 @@ select = [
 ignore = ["PLR0913", "EM101", "EM102", "ARG002"]
 
 [tool.ruff.lint.per-file-ignores]
-"**/tests/**" = ["S101", "PLR2004", "ARG001"]
+"**/tests/**" = ["S101", "S105", "S106", "PLR2004", "ARG001"]
 "**/admin.py" = ["RUF012"]
 
 [tool.ruff.lint.isort]
