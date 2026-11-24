@@ -58,6 +58,10 @@ module = ["factory", "factory.*"]
 implicit_reexport = true
 
 [[tool.mypy.overrides]]
+module = ["apps.core.api.schema"]
+disallow_untyped_calls = false
+
+[[tool.mypy.overrides]]
 module = ["apps.*.tests.*"]
 disallow_untyped_calls = false
 
