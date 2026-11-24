@@ -118,7 +118,7 @@ SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin"
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.SessionAuthentication",
+        "apps.core.authentication.SessionAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
@@ -131,6 +131,9 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "EXCEPTION_HANDLER": "apps.core.api.exceptions.api_exception_handler",
+    "DEFAULT_THROTTLE_RATES": {
+        "login": env.str("LOGIN_THROTTLE_RATE", default="10/minute"),
+    },
     "TEST_REQUEST_DEFAULT_FORMAT": "json",
 }
 
