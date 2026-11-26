@@ -15,6 +15,7 @@ from apps.accounts.api.serializers import LoginSerializer, SessionUserSerializer
 from apps.accounts.selectors import session_user
 from apps.core.api.serializers import ErrorResponseSerializer
 from apps.core.permissions import RequiresCsrfToken
+from apps.tenancy.database import transaction_database_scope
 
 
 class CsrfTokenView(APIView):
@@ -57,7 +58,9 @@ class LoginView(APIView):
                 _("Incorrect phone number or password."), code="invalid_credentials"
             )
         login(request._request, user)
-        return Response(SessionUserSerializer(session_user(user_id=user.pk)).data)
+        with transaction_database_scope(user_id=user.pk):
+            payload = SessionUserSerializer(session_user(user_id=user.pk)).data
+        return Response(payload)
 
 
 class LogoutView(APIView):

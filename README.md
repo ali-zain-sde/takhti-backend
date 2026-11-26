@@ -18,6 +18,14 @@ uv run python manage.py runserver
 
 API docs are served at `http://localhost:8000/api/docs/`.
 
+## Tenant isolation
+
+Every request runs inside one organisation, chosen by the `X-Organisation` header (or the user's only organisation) and optionally narrowed by `X-Campus`.
+
+- `Model.objects` on tenant-owned models is scoped to the current organisation and returns nothing outside one. `Model.unscoped` is for deliberate cross-tenant work such as the admin and the signed-in user's own memberships.
+- PostgreSQL row-level security is the backstop. Policies read `app.organisation_id`, `app.user_id` and `app.is_system`, which the tenant middleware sets per request.
+- Superusers and roles with `BYPASSRLS` ignore these policies. In production the app must connect as a role without either; the table owner is fine because the tables use `FORCE ROW LEVEL SECURITY`.
+
 ## Quality
 
 ```bash
