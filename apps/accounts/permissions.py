@@ -1,24 +1,22 @@
 from typing import ClassVar
 
 from django.utils.translation import gettext_lazy as _
-from rest_framework.permissions import BasePermission
 from rest_framework.request import Request
 from rest_framework.views import APIView
 
-from apps.accounts.models import Role, User
-from apps.accounts.selectors import active_memberships
+from apps.accounts.models import Role
+from apps.tenancy.permissions import RequiresTenant, require_tenant
 
 
-class HasRole(BasePermission):
+class HasRole(RequiresTenant):
     allowed_roles: ClassVar[frozenset[Role]] = frozenset()
     message = _("Your role does not allow this action.")
     code = "role_required"
 
     def has_permission(self, request: Request, view: APIView) -> bool:
-        user = request.user
-        if not isinstance(user, User) or not self.allowed_roles:
+        if not super().has_permission(request, view):
             return False
-        return active_memberships().filter(user=user, role__in=self.allowed_roles).exists()
+        return bool(require_tenant(request).roles & self.allowed_roles)
 
 
 class IsMember(HasRole):
