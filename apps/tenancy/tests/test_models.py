@@ -38,7 +38,7 @@ def test_campus_slug_may_repeat_across_organisations() -> None:
 
     CampusFactory.create(slug="main")
 
-    assert Campus.objects.filter(slug="main").count() == 2
+    assert Campus.unscoped.filter(slug="main").count() == 2
 
 
 def test_campus_rejects_unknown_province_at_database_level() -> None:

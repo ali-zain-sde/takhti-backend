@@ -6,7 +6,7 @@ from apps.accounts.models import Membership, User
 
 
 def active_memberships() -> QuerySet[Membership]:
-    return Membership.objects.filter(is_active=True, organisation__is_active=True).filter(
+    return Membership.unscoped.filter(is_active=True, organisation__is_active=True).filter(
         Q(campus__isnull=True) | Q(campus__is_active=True)
     )
 

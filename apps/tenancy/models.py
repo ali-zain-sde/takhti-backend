@@ -3,6 +3,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from apps.core.models import BaseModel
+from apps.tenancy.managers import TenantManager
 
 SLUG_PATTERN = r"^[a-z0-9]+(?:-[a-z0-9]+)*$"
 
@@ -27,7 +28,11 @@ class Organisation(BaseModel):
     slug = models.SlugField(_("slug"), max_length=60, unique=True, validators=[slug_validator])
     is_active = models.BooleanField(_("active"), default=True)
 
+    unscoped = models.Manager["Organisation"]()
+    objects = TenantManager["Organisation"](tenant_field="id")
+
     class Meta:
+        default_manager_name = "unscoped"
         verbose_name = _("organisation")
         verbose_name_plural = _("organisations")
         ordering = ("name",)
@@ -59,7 +64,11 @@ class Campus(BaseModel):
     city = models.CharField(_("city"), max_length=80)
     is_active = models.BooleanField(_("active"), default=True)
 
+    unscoped = models.Manager["Campus"]()
+    objects = TenantManager["Campus"](tenant_field="organisation_id")
+
     class Meta:
+        default_manager_name = "unscoped"
         verbose_name = _("campus")
         verbose_name_plural = _("campuses")
         ordering = ("organisation", "name")
