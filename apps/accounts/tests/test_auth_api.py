@@ -2,8 +2,9 @@ from typing import TYPE_CHECKING
 
 import pytest
 from django.conf import settings
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
-from pytest_django import DjangoAssertNumQueries
 from rest_framework import status
 from rest_framework.test import APIClient
 
@@ -179,18 +180,21 @@ def test_me_lists_only_usable_memberships(client: APIClient) -> None:
     }
 
 
-def test_me_query_count_does_not_grow_with_memberships(
-    client: APIClient, django_assert_num_queries: DjangoAssertNumQueries
-) -> None:
+def count_me_queries(client: APIClient, campuses: int) -> int:
     user = UserFactory.create()
-    for campus in CampusFactory.create_batch(5):
-        MembershipFactory.create(user=user, organisation=campus.organisation, campus=campus)
+    organisation = OrganisationFactory.create()
+    MembershipFactory.create(user=user, organisation=organisation, role=Role.ADMIN)
+    for campus in CampusFactory.create_batch(campuses, organisation=organisation):
+        MembershipFactory.create(user=user, organisation=organisation, campus=campus)
     client.force_login(user)
-
-    with django_assert_num_queries(4):
+    with CaptureQueriesContext(connection) as queries:
         response = client.get(ME_URL)
+    assert len(response.json()["memberships"]) == campuses + 1
+    return len(queries)
 
-    assert len(response.json()["memberships"]) == 5
+
+def test_me_query_count_does_not_grow_with_memberships(client: APIClient) -> None:
+    assert count_me_queries(client, 1) == count_me_queries(client, 5)
 
 
 def test_logout_ends_the_session(client: APIClient) -> None:
@@ -209,3 +213,13 @@ def test_logout_requires_a_csrf_token(client: APIClient) -> None:
     response = client.post(LOGOUT_URL)
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+def test_me_works_with_a_stale_organisation_header(client: APIClient) -> None:
+    membership = MembershipFactory.create(role=Role.OWNER)
+    client.force_login(membership.user)
+
+    response = client.get(ME_URL, headers={"X-Organisation": str(OrganisationFactory.create().pk)})
+
+    assert response.status_code == status.HTTP_200_OK
+    assert [item["id"] for item in response.json()["memberships"]] == [str(membership.id)]
