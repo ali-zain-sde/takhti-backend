@@ -116,7 +116,7 @@ def test_regranting_a_revoked_scope_reactivates_it_with_the_new_role() -> None:
     assert membership.pk == existing.pk
     assert membership.role == Role.ADMIN
     assert membership.is_active
-    assert Membership.objects.count() == 1
+    assert Membership.unscoped.count() == 1
 
 
 def test_revoke_membership_keeps_the_row_but_deactivates_it() -> None:

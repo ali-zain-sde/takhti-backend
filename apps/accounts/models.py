@@ -10,6 +10,7 @@ from apps.accounts.managers import UserManager
 from apps.core.fields import PakistaniMobileField
 from apps.core.models import BaseModel
 from apps.core.phone import PAKISTANI_MOBILE_PATTERN
+from apps.tenancy.managers import TenantManager
 from apps.tenancy.models import Campus, Organisation
 
 
@@ -73,7 +74,11 @@ class Membership(BaseModel):
     role = models.CharField(_("role"), max_length=16, choices=Role.choices)
     is_active = models.BooleanField(_("active"), default=True)
 
+    unscoped = models.Manager["Membership"]()
+    objects = TenantManager["Membership"](tenant_field="organisation_id")
+
     class Meta:
+        default_manager_name = "unscoped"
         verbose_name = _("membership")
         verbose_name_plural = _("memberships")
         ordering = ("created_at",)

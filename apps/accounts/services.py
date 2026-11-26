@@ -16,7 +16,7 @@ def grant_membership(
 ) -> Membership:
     _ensure_scope_is_active(organisation=organisation, campus=campus)
     existing = (
-        Membership.objects.select_for_update()
+        Membership.unscoped.select_for_update()
         .filter(user=user, organisation=organisation, campus=campus)
         .first()
     )
